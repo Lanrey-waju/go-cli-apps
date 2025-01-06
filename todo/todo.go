@@ -17,6 +17,19 @@ type item struct {
 
 type ItemList []item
 
+func (il *ItemList) String() string {
+	formatted := ""
+
+	for i, v := range *il {
+		prefix := "  "
+		if v.Done {
+			prefix = "X "
+		}
+		formatted += fmt.Sprintf("%s%d: %s\n", prefix, i+1, v.Task)
+	}
+	return formatted
+}
+
 // Add adds a new task to the list
 func (il *ItemList) Add(task string) {
 	t := item{
