@@ -9,10 +9,20 @@ import (
 )
 
 func main() {
-	task := os.Args[1:]
-	taskString := strings.Join(task, " ")
-	il := todo.ItemList{}
-	il.Add(taskString)
-
-	fmt.Println(il[0].Task)
+	const fileName = "tasksFile.json"
+	il := &todo.ItemList{}
+	if err := il.Get(fileName); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	switch {
+	case len(os.Args) == 1:
+		for _, item := range *il {
+			fmt.Println(item.Task)
+		}
+	default:
+		item := strings.Join(os.Args[1:], " ")
+		il.Add(item)
+		il.Save(fileName)
+	}
 }
