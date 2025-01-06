@@ -1,28 +1,50 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/lanrey-waju/todo"
 )
 
 func main() {
-	const fileName = "tasksFile.json"
+	// parse command line flags
+	task := flag.String("task", "", "add task to ToDo list")
+	list := flag.Bool("list", false, "lists all tasks")
+	complete := flag.Int("complete", 0, "item to be completed")
+
+	flag.Parse()
+	const todoFileName = "tasksFile.json"
+
 	il := &todo.ItemList{}
-	if err := il.Get(fileName); err != nil {
+	if err := il.Get(todoFileName); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	switch {
-	case len(os.Args) == 1:
+	case *list:
 		for _, item := range *il {
 			fmt.Println(item.Task)
 		}
+	case *task != "":
+		il.Add(*task)
+		if err := il.Save(todoFileName); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	case *complete > 0:
+		if err := il.Complete(*complete); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		if err := il.Save(todoFileName); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 	default:
-		item := strings.Join(os.Args[1:], " ")
-		il.Add(item)
-		il.Save(fileName)
+		fmt.Fprintln(os.Stderr, "invalid option")
+		os.Exit(1)
 	}
 }
