@@ -82,6 +82,8 @@ func TestSaveGet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to create file: %v", err)
 	}
+	defer os.Remove(file.Name())
+	defer file.Close()
 
 	if err := il1.Save(file.Name()); err != nil {
 		t.Fatalf("unable to save file into given file: %v", err)
