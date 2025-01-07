@@ -1,16 +1,38 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/lanrey-waju/todo"
 )
 
+func getTask(r io.Reader, args ...string) (string, error) {
+	if len(args) > 0 {
+		return strings.Join(args, " "), nil
+	}
+
+	scanner := bufio.NewScanner(r)
+	scanner.Scan()
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	text := scanner.Text()
+	if len(text) == 0 {
+		return "", fmt.Errorf("task cannot be blank")
+	}
+
+	return text, nil
+}
+
 func main() {
 	// parse command line flags
-	task := flag.String("task", "", "add task to ToDo list")
+	add := flag.Bool("add", false, "add task to ToDo list")
 	list := flag.Bool("list", false, "lists all tasks")
 	complete := flag.Int("complete", 0, "item to be completed")
 
@@ -30,8 +52,13 @@ func main() {
 	case *list:
 		// print list of tasks
 		fmt.Print(il)
-	case *task != "":
-		il.Add(*task)
+	case *add:
+		task, err := getTask(os.Stdin, flag.Args()...)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		il.Add(task)
 		if err := il.Save(todoFileName); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
