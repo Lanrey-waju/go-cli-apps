@@ -78,7 +78,7 @@ func TestTodoCLI(t *testing.T) {
 	})
 
 	t.Run("ListTasks", func(t *testing.T) {
-		cmd := exec.Command(cmdPath, "-list")
+		cmd := exec.Command(cmdPath, "list")
 
 		out, err := cmd.Output()
 		if err != nil {
@@ -99,7 +99,7 @@ func TestTodoCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		cmd = exec.Command(cmdPath, "-list")
+		cmd = exec.Command(cmdPath, "list")
 
 		out, err := cmd.CombinedOutput()
 		if err != nil {

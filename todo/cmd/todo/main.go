@@ -39,10 +39,11 @@ func main() {
 		false,
 		"Add tasks to todo list. Run without arguments to enable multiline input from STDIN. Each line is a new task in the list. A blank line saves the list.",
 	)
-	list := flag.Bool("list", false, "lists all tasks")
+	fs := flag.NewFlagSet("list", flag.ExitOnError)
+	// list := fs.Bool("", false, "lists all tasks")
 	complete := flag.Int("complete", 0, "item to be completed")
 	del := flag.Int("del", 0, "delete item from todo list")
-	verbose := flag.Bool("verbose", false, "enable verbose output")
+	verbose := fs.Bool("verbose", false, "enable verbose output")
 
 	flag.Parse()
 	todoFileName := "tasksFile.json"
@@ -56,9 +57,15 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
 	switch {
-	case *list:
+	case flag.NArg() > 0 && flag.Arg(0) == "list":
 		// print list of tasks
+		fs.Parse(flag.Args()[1:])
+		if *verbose {
+			fmt.Println(il.PrintVerbose())
+			os.Exit(0)
+		}
 		fmt.Print(il)
 	case *add:
 		if len(flag.Args()) > 0 {
@@ -102,10 +109,11 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-	case *verbose:
-		fmt.Print(il.PrintVerbose())
+	// case *verbose:
+	// 	fmt.Print(il.PrintVerbose())
 	default:
 		fmt.Fprintln(os.Stderr, "invalid option")
+		flag.Usage()
 		os.Exit(1)
 	}
 }
