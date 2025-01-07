@@ -32,9 +32,11 @@ func getTask(r io.Reader, args ...string) (string, error) {
 
 func main() {
 	// parse command line flags
-	add := flag.Bool("add", false, "add task to ToDo list")
+	add := flag.Bool("add", false, "add task to todo list")
 	list := flag.Bool("list", false, "lists all tasks")
 	complete := flag.Int("complete", 0, "item to be completed")
+	del := flag.Int("del", 0, "delete item from todo list")
+	verbose := flag.Bool("verbose", false, "enable verbose output")
 
 	flag.Parse()
 	todoFileName := "tasksFile.json"
@@ -73,6 +75,18 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
+	case *del > 0:
+		if err := il.Delete(*del); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		if err := il.Save(todoFileName); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	case *verbose:
+		fmt.Print(il.PrintVerbose())
 	default:
 		fmt.Fprintln(os.Stderr, "invalid option")
 		os.Exit(1)

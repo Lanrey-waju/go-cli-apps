@@ -30,6 +30,28 @@ func (il *ItemList) String() string {
 	return formatted
 }
 
+func (il *ItemList) PrintVerbose() string {
+	formatted := ""
+
+	for i, v := range *il {
+		prefix := "   "
+		suffix := ""
+		if v.Done {
+			prefix = " X "
+			suffix += fmt.Sprintf(" - completed %s", v.CompletedAt.Format(time.RFC850))
+		}
+		formatted += fmt.Sprintf(
+			"%s %v  %d: %s%s\n",
+			prefix,
+			v.CreatedAt.Format(time.RFC850),
+			i+1,
+			v.Task,
+			suffix,
+		)
+	}
+	return formatted
+}
+
 // Add adds a new task to the list
 func (il *ItemList) Add(task string) {
 	t := item{
