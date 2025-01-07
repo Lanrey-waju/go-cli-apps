@@ -15,7 +15,11 @@ func main() {
 	complete := flag.Int("complete", 0, "item to be completed")
 
 	flag.Parse()
-	const todoFileName = "tasksFile.json"
+	todoFileName := "tasksFile.json"
+
+	if os.Getenv("TODO_FILENAME") != "" {
+		todoFileName = os.Getenv("TODO_FILENAME")
+	}
 
 	il := &todo.ItemList{}
 	if err := il.Get(todoFileName); err != nil {
